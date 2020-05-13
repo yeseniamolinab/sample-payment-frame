@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/form.css">
+        <script src="https://core.spreedly.com/iframe/iframe-v1.min.js"></script>
+    </head>
+    <body>
+        <form id="payment-form" onsubmit="return submitPaymentForm(event)">
+            <input type="hidden" name="payment_method_token" id="payment_method_token" />
+            <ul class="form-style-1">
+                <li><label>Full Name<span class="required">*</span></label><input type="text" id="first_name" name="first_name" class="field-divided" placeholder="First" /> <input type="text" name="last_name" id="last_name" class="field-divided" placeholder="Last" /></li>
+                <li><label>Zip</label><input type="text" id="zip" name="zip" class="field-divided" placeholder="Zip Code" maxlength="5" /> </li>
+                <li>
+                    <label>Credit Card Number<span class="required">*</span></label>
+                    <div id="spreedly-number" style="width: 225px; height: 29px; border: 1px solid #BEBEBE;"></div>
+                </li>
+                <li><label>Expiration Date<span class="required">*</span></label><input type="text" id="month" name="month" class="field-divided" placeholder="MM" maxlength="2" /> <input type="text" name="year" id="year" class="field-divided" placeholder="YYYY" maxlength="4" /></li>
+                <li>
+                    <label>CVV<span class="required">*</span></label>
+                    <div id="spreedly-cvv" style="width: 60px; height: 29px; border: 1px solid #BEBEBE;"></div>
+                </li>
+                <li>
+                    <input id="submit-button" type="submit" value="Add Card" disabled />
+                </li>
+                <li>
+                    <div id="message"></div>
+                </li>
+
+                <li>
+                    <label>Spreedly Response: <span class="required">*</span></label>
+                    <textarea id="spreedly-response" name="field5" id="field5" class="field-long field-textarea"></textarea>
+                </li>
+            </ul>
+            </form>
+            <script>
+                Spreedly.init("OTSpreedlyKey", {
+                    "numberEl": "spreedly-number",
+                    "cvvEl": "spreedly-cvv"
+                });
+        
+                Spreedly.on("ready", function () {
+                    console.log("Spreedly Ready!");
+                    var submitButton = document.getElementById('submit-button');
+                    submitButton.disabled = false;
+                });
+        
+                function submitPaymentForm(e) {
+                    e.preventDefault();
+                    var requiredFields = {};
+        
+                    // Get required, non-sensitive, values from host page
+                    requiredFields["first_name"] = document.getElementById("first_name").value;
+                    requiredFields["last_name"] = document.getElementById("last_name").value;
+                    requiredFields["zip"] = document.getElementById("zip").value;
+                    requiredFields["month"] = document.getElementById("month").value;
+                    requiredFields["year"] = document.getElementById("year").value;
+        
+                    Spreedly.tokenizeCreditCard(requiredFields);
+                    return false;
+                }
+        
+                Spreedly.on('errors', function(errors) {
+                    messageEl = document.getElementById("message");
+                    for(var i = 0; i < errors.length; i++) {
+                        messageEl.innerHTML =
+                        "Error saving card " + errors[i]["key"] + ": " + errors[i]["message"]
+                    }
+                });
+        
+                Spreedly.on('paymentMethod', function(token, pmData) {
+        
+                    // Set the token in the hidden form field
+                    var tokenField = document.getElementById("payment_method_token");
+                    tokenField.setAttribute("value", token);
+        
+                    /* Submit the form - At this point we have the token and 
+                    can send the credit card info to User Service
+                    
+                    var masterForm = document.getElementById('payment-form');
+                    masterForm.submit(); */
+
+                    var apiResponse = document.getElementById('spreedly-response');
+                    apiResponse.innerHTML = JSON.stringify(pmData, undefined, 4) 
+                });
+            </script>
+    </body>
+</html>
