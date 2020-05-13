@@ -33,7 +33,7 @@
             </ul>
             </form>
             <script>
-                Spreedly.init("SpreedlyKey", {
+                Spreedly.init("aPVurCqhSro7NjGx8cAP3PH5PuC", {
                     "numberEl": "spreedly-number",
                     "cvvEl": "spreedly-cvv"
                 });
@@ -62,8 +62,7 @@
                 Spreedly.on('errors', function(errors) {
                     messageEl = document.getElementById("message");
                     for(var i = 0; i < errors.length; i++) {
-                        messageEl.innerHTML =
-                        "Error saving card " + errors[i]["key"] + ": " + errors[i]["message"]
+                        messageEl.innerHTML = errors[i]["message"]
                     }
                 });
         
